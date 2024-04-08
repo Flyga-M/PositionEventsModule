@@ -71,7 +71,7 @@ private void OnAreaJoinedOrLeft(PositionData positionData, bool isInside)
 As a rudimentary way to debug your areas, this module provides the option to display your area
  as an `IEntity` in the world.
 
-![Gif displaying an example of a area in debug mode](https://github.com/Flyga-M/PositionEventsExample/blob/master/Resources/debug.gif)
+![Gif displaying an example of a area in debug mode](https://github.com/Flyga-M/PositionEventsModule/blob/master/Resources/debug.gif)
 
  To make use of this feature, simply set the `debug` parameter to `true`, when registering the area.
  ```
