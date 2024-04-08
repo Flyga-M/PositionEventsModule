@@ -47,7 +47,7 @@ protected override Task LoadAsync()
 
 2. Register your desired areas with the Position Events Module.
 ```
-IBoundingObject area = new BoundingObjectBox(new BoundingBox(new Vector3(0), new Vector3(10, 20, 30)));
+IBoundingObject area = new BoundingObjectBox(new Vector3(0), new Vector3(10, 20, 30));
 _positionEventsModule?.RegisterArea(this, 15, area, OnAreaJoinedOrLeft);
 ```
 
