@@ -9,7 +9,7 @@ A module for Blish-HUD which provides functionality to efficiently bundle positi
 ```
 dependencies": {
     "bh.blishhud": "^1.0.0",
-	"Flyga.PositionEvents": "^0.1.0"
+	"Flyga.PositionEvents": "^0.2.0"
   }
 ```
 > [!TIP]

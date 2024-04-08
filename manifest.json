@@ -1,6 +1,6 @@
 {
   "name": "Position Events",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "namespace": "Flyga.PositionEvents",
   "package": "PositionEventsModule.dll",
   "manifest_version": 1,
