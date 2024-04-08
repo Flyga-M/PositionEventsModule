@@ -48,7 +48,7 @@ protected override Task LoadAsync()
 2. Register your desired areas with the Position Events Module.
 ```
 IBoundingObject area = new BoundingObjectBox(new BoundingBox(new Vector3(0), new Vector3(10, 20, 30)));
-_positionEventsModule?.RegisterArea(this, 15, area, OnAreaJoinedOrLeft, true);
+_positionEventsModule?.RegisterArea(this, 15, area, OnAreaJoinedOrLeft);
 ```
 
 3. Use the output with a callback action
@@ -66,3 +66,14 @@ private void OnAreaJoinedOrLeft(PositionData positionData, bool isInside)
 
 > [!TIP]
 > For an example implementation, take a look at [Position Events Examples](https://github.com/Flyga-M/PositionEventsExample).
+
+## Debugging your areas
+As a rudimentary way to debug your areas, this module provides the option to display your area
+ as an `IEntity` in the world.
+
+ To make use of this feature, simply set the `debug` parameter to `true`, when registering the area.
+ ```
+ _positionEventsModule?.RegisterArea(this, 15, area, OnAreaJoinedOrLeft, true);
+ ```
+ > [!WARNING]
+ > You should never ship your module with the debug functionality enabled.
