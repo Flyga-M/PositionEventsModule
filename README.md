@@ -6,6 +6,12 @@ A module for Blish-HUD which provides functionality to efficiently bundle positi
 1. Add the PositionEvents Package as a reference to your module. It is available as a [NuGet](https://www.nuget.org/packages/PositionEvents) package.
 2. Add the Position Events Module [.dll](https://github.com/Flyga-M/PositionEventsModule/releases/) as a reference to your module.
 3. Add the Position Events Module as a dependency to your module manifest.
+```
+dependencies": {
+    "bh.blishhud": "^1.0.0",
+	"Flyga.PositionEvents": "^0.1.0"
+  }
+```
 
 ### Usage inside your module
 1. Retrieve a reference to the Position Events Module instance during your `LoadAsync` method.
