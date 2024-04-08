@@ -12,6 +12,10 @@ dependencies": {
 	"Flyga.PositionEvents": "^0.1.0"
   }
 ```
+> [!TIP]
+> Make sure that the references of the PositionEvents Package and the Position Events Module have **Copy Local** set
+> to **False** in the properties of the reference. You don't need to ship them with your module, since they will
+> already be present, because of your modules dependence on the Position Events Module.
 
 ### Usage inside your module
 1. Retrieve a reference to the Position Events Module instance during your `LoadAsync` method.
