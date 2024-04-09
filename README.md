@@ -25,11 +25,11 @@ BoundingObjectPrism(float top, float bottom, IEnumerable<Vector2> polygon, Axis3
 ```
 ### Boolean Operations
 The [Position Events](https://github.com/Flyga-M/PositionEvents) Package implements capabilities to 
-add (Union), subtract (Difference) and intersect (Intersection) Bounding Objects from each other.
+add (Union), subtract (Difference) and intersect (Intersection) Bounding Objects from/with each other.
 
 There are multiple ways to access these boolean operations.
 1. Directly call the constructor of the Bounding Object Groups (not recommended).
- See [PositionEvents.Area](https://github.com/Flyga-M/PositionEvents/tree/master/Area) for implementation.
+ See PositionEvents.[Area](https://github.com/Flyga-M/PositionEvents/tree/master/Area) for implementation.
 ```
 BoundingObjectGroupUnion(IEnumerable<IBoundingObject> content);
 BoundingObjectGroupDifference(IBoundingObject positive, IEnumerable<IBoundingObject> negatives);
