@@ -19,31 +19,8 @@ dependencies": {
 
 ### Usage inside your module
 1. Retrieve a reference to the Position Events Module instance during your `LoadAsync` method.
-```
-private static PositionEventsModule _positionEventsModule;
-
-protected override Task LoadAsync()
-{
-    foreach (ModuleManager item in GameService.Module.Modules)
-    {
-        if (item.Manifest.Namespace == "Flyga.PositionEvents")
-        {
-            if (item.ModuleInstance is PositionEventsModule positionEventsModule)
-            {
-                _positionEventsModule = positionEventsModule;
-            }
-            else
-            {
-                Logger.Error("Unable to detect required Position Events Module.");
-            }
-                    
-            break;
-        }
-    }
-
-    return Task.CompletedTask;
-}
-```
+> [!WARNING]
+> Make sure to avoid module load order conflicts. For reference see the [Position Events Example](https://github.com/Flyga-M/PositionEventsExample).
 
 2. Register your desired areas with the Position Events Module.
 ```
@@ -65,7 +42,7 @@ private void OnAreaJoinedOrLeft(PositionData positionData, bool isInside)
 ```
 
 > [!TIP]
-> For an example implementation, take a look at [Position Events Examples](https://github.com/Flyga-M/PositionEventsExample).
+> For an example implementation, take a look at [Position Events Example](https://github.com/Flyga-M/PositionEventsExample).
 
 ## Debugging your areas
 As a rudimentary way to debug your areas, this module provides the option to display your area
