@@ -2,6 +2,7 @@
 using Blish_HUD.Modules;
 using Blish_HUD.Modules.Managers;
 using Blish_HUD.Settings;
+using Flyga.PositionEventsModule.Contexts;
 using Microsoft.Xna.Framework;
 using PositionEvents;
 using PositionEvents.Area;
@@ -12,8 +13,10 @@ using System.Threading.Tasks;
 
 namespace Flyga.PositionEventsModule
 {
-    [Export(typeof(Blish_HUD.Modules.Module))]
-    public class PositionEventsModule : Blish_HUD.Modules.Module
+    [PartCreationPolicy(CreationPolicy.Shared)]
+    [Export("PositionEventsModule")]
+    [Export(typeof(Module))]
+    public class PositionEventsModule : Module
     {
         private static readonly Logger Logger = Logger.GetLogger<PositionEventsModule>();
 
@@ -30,6 +33,10 @@ namespace Flyga.PositionEventsModule
         private static SettingEntry<int> _updateCooldown;
 
         private double _lastUpdate = 0;
+
+        private PositionEventsContext _positionEventsContext;
+        private ContextsService.ContextHandle<PositionEventsContext> _positionEventsContextHandle;
+        private ContextManager _contextManager;
 
         public static int ClampedCooldown
         {
@@ -150,6 +157,15 @@ namespace Flyga.PositionEventsModule
         {
             // Base handler must be called
             base.OnModuleLoaded(e);
+
+            RegisterContext();
+        }
+
+        private void RegisterContext()
+        {
+            _positionEventsContext = new PositionEventsContext();
+            _contextManager = new ContextManager(_positionEventsContext, this);
+            _positionEventsContextHandle = GameService.Contexts.RegisterContext(_positionEventsContext);
         }
 
         protected override void Update(GameTime gameTime)
@@ -161,6 +177,7 @@ namespace Flyga.PositionEventsModule
             }
 
             _lastUpdate = 0;
+
             _positionHandler.Update(GameService.Gw2Mumble.GetPositionData());
         }
 
@@ -177,7 +194,7 @@ namespace Flyga.PositionEventsModule
         /// <param name="debug">A debug flag. If set to true, the <paramref name="area"/> will be 
         /// rendered visually when in the given map. Should always be set to false when shipping 
         /// a <see cref="Module"/>.</param>
-        public void RegisterArea(Module module, int mapId, IBoundingObject area, Action<PositionData, bool> callback, bool debug = false)
+        internal void RegisterArea(Module module, int mapId, IBoundingObject area, Action<PositionData, bool> callback, bool debug = false)
         {
             Type moduleType = module.GetType();
             
@@ -206,6 +223,8 @@ namespace Flyga.PositionEventsModule
                 return;
             }
 
+            Logger.Info("Debug flag to true");
+
             _positionHandler.AddArea(mapId, area,
                 (positionData, isContained) =>
                 {
@@ -213,16 +232,23 @@ namespace Flyga.PositionEventsModule
                     callback(positionData, isContained);
                 });
 
+            Logger.Info("Subscribed to callback");
+
             if (!_debugAreas.ContainsKey(mapId))
             {
+                Logger.Info("_debugAreas has no entry for mapId");
                 _debugAreas[mapId] = new List<IBoundingObject>();
             }
 
             _debugAreas[mapId].Add(area);
 
+            Logger.Info("added area to _debugAreas[mapId]");
+
             if (mapId == GameService.Gw2Mumble.CurrentMap.Id)
             {
+                Logger.Info("mapId == currentMap");
                 Debug.BoundingObjectDebug.DisplayBoundingObject(area);
+                Logger.Info("Displayed bounding object.");
             }
         }
 
@@ -254,7 +280,7 @@ namespace Flyga.PositionEventsModule
         /// <param name="area">The <see cref="IBoundingObject"/> that defined the area.</param>
         /// <returns>True, if the <paramref name="area"/> was registered for the given <paramref name="mapId"/> 
         /// and successfully removed. Otherwise false.</returns>
-        public bool RemoveArea(Module module, int mapId, IBoundingObject area)
+        internal bool RemoveArea(Module module, int mapId, IBoundingObject area)
         {
             return RemoveArea(module.GetType(), mapId, area);
         }
@@ -264,7 +290,7 @@ namespace Flyga.PositionEventsModule
         /// <paramref name="module"/>.
         /// </summary>
         /// <param name="module">The <see cref="Module"/> that registered the areas.</param>
-        public void RemoveAllAreas(Module module)
+        internal void RemoveAllAreas(Module module)
         {
             Type moduleType = module.GetType();
 
