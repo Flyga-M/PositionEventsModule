@@ -155,10 +155,10 @@ namespace Flyga.PositionEventsModule
 
         protected override void OnModuleLoaded(EventArgs e)
         {
+            RegisterContext();
+
             // Base handler must be called
             base.OnModuleLoaded(e);
-
-            RegisterContext();
         }
 
         private void RegisterContext()
