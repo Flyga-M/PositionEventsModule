@@ -13,8 +13,6 @@ using System.Threading.Tasks;
 
 namespace Flyga.PositionEventsModule
 {
-    [PartCreationPolicy(CreationPolicy.Shared)]
-    [Export("PositionEventsModule")]
     [Export(typeof(Module))]
     public class PositionEventsModule : Module
     {

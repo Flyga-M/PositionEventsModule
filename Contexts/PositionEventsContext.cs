@@ -24,7 +24,7 @@ namespace Flyga.PositionEventsModule.Contexts
 
         protected override void Load()
         {
-            this.ConfirmReady();
+            ConfirmReady();
         }
 
         /// <summary>
@@ -34,8 +34,8 @@ namespace Flyga.PositionEventsModule.Contexts
         /// <exception cref="InvalidOperationException">Throws if context is expired or not ready.</exception>
         protected void CheckReady()
         {
-            if (this.State == ContextState.Expired) throw new InvalidOperationException("Context has expired.");
-            if (this.State != ContextState.Ready) throw new InvalidOperationException("Context is not ready.");
+            if (State == ContextState.Expired) throw new InvalidOperationException("Context has expired.");
+            if (State != ContextState.Ready) throw new InvalidOperationException("Context is not ready.");
         }
 
         /// <summary>
