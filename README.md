@@ -37,7 +37,8 @@ BoundingObjectGroupIntersection(IEnumerable<IBoundingObject> content);
 ```
 2. Using PositionEvents.[IBoundingObjectExtensions](https://github.com/Flyga-M/PositionEvents/blob/master/_Extensions/IBoundingObjectExtensions.cs)
 ```
-// assumes boundingObject and other to be IBoundingObjects (any of the ones mentioned above, including the boolean operations)
+// assumes boundingObject and other to be IBoundingObjects (any of the ones
+// mentioned above, including the boolean operations)
 boundingObject = boundingObject.Union(other);
 boundingObject = boundingObject.Difference(other);
 boundingObject = boundingObject.Intersection(other);
@@ -45,7 +46,8 @@ boundingObject = boundingObject.Intersection(other);
 3. Using PositionEvents.Area.[BoundingObjectBuilder](https://github.com/Flyga-M/PositionEvents/blob/master/Area/_Builder/BoundingObjectBuilder.cs)
 ```
 // assumes oneBoundingObject, anotherBoundingObject, differentBoundingObject and
-// anotherDifferentBoundingObject to be IBoundingObjects (any of the ones mentioned aboce, including the boolean operations)
+// anotherDifferentBoundingObject to be IBoundingObjects (any of the ones
+// mentioned above, including the boolean operations)
 BoundingObjectBuilder builder = new BoundingObjectBuilder()
     .Add(oneBoundingObject) // base
     .Add(anotherBoundingObject) // Union
@@ -65,10 +67,10 @@ You need a different geometrical shape for your area? Implement the
 2. Add the Position Events Module [.dll](https://github.com/Flyga-M/PositionEventsModule/releases/) as a reference to your module.
 3. Add the Position Events Module as a dependency to your module manifest.
 ```
-dependencies": {
+dependencies":{
     "bh.blishhud": "^1.0.0",
-	"Flyga.PositionEvents": "^0.2.0"
-  }
+    "Flyga.PositionEvents": "^0.2.0"
+}
 ```
 > [!TIP]
 > Make sure that the references of the PositionEvents Package and the Position Events Module have **Copy Local** set
@@ -82,6 +84,8 @@ dependencies": {
 
 2. Register your desired areas with the Position Events Module.
 ```
+// Assumes you retrieved a reference to the Position Events Module before
+// calling this
 IBoundingObject area = new BoundingObjectBox(new Vector3(0), new Vector3(10, 20, 30));
 _positionEventsModule?.RegisterArea(this, 15, area, OnAreaJoinedOrLeft);
 ```
@@ -110,7 +114,7 @@ As a rudimentary way to debug your areas, this module provides the option to dis
 
  To make use of this feature, simply set the `debug` parameter to `true`, when registering the area.
  ```
- _positionEventsModule?.RegisterArea(this, 15, area, OnAreaJoinedOrLeft, true);
+ _positionEventsModule?.RegisterArea(this, 15, area, OnAreaJoinedOrLeft, debug: true);
  ```
  > [!WARNING]
  > You should never ship your module with the debug functionality enabled.
