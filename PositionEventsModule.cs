@@ -221,8 +221,6 @@ namespace Flyga.PositionEventsModule
                 return;
             }
 
-            Logger.Info("Debug flag to true");
-
             _positionHandler.AddArea(mapId, area,
                 (positionData, isContained) =>
                 {
@@ -230,23 +228,16 @@ namespace Flyga.PositionEventsModule
                     callback(positionData, isContained);
                 });
 
-            Logger.Info("Subscribed to callback");
-
             if (!_debugAreas.ContainsKey(mapId))
             {
-                Logger.Info("_debugAreas has no entry for mapId");
                 _debugAreas[mapId] = new List<IBoundingObject>();
             }
 
             _debugAreas[mapId].Add(area);
 
-            Logger.Info("added area to _debugAreas[mapId]");
-
             if (mapId == GameService.Gw2Mumble.CurrentMap.Id)
             {
-                Logger.Info("mapId == currentMap");
                 Debug.BoundingObjectDebug.DisplayBoundingObject(area);
-                Logger.Info("Displayed bounding object.");
             }
         }
 
@@ -310,6 +301,20 @@ namespace Flyga.PositionEventsModule
             }
         }
 
+        private void UnloadContext()
+        {
+            _positionEventsContextHandle?.Expire();
+
+            if (this._contextManager != null)
+            {
+                this._contextManager.Dispose();
+                this._contextManager = null;
+            }
+
+            this._positionEventsContext = null;
+            this._positionEventsContextHandle = null;
+        }
+
         /// <inheritdoc />
         protected override void Unload()
         {
@@ -319,6 +324,8 @@ namespace Flyga.PositionEventsModule
             {
                 module.ModuleRunStateChanged -= OnOtherModuleRunStateChanged;
             }
+
+            UnloadContext();
 
             _registeredModules.Clear();
             _areasByModule.Clear();

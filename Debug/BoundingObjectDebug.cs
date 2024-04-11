@@ -8,11 +8,14 @@ using PositionEvents.Area;
 using PositionEvents.Implementation.OcTree.Bounds;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace Flyga.PositionEventsModule.Debug
 {
     public static class BoundingObjectDebug
     {
+        private static Logger Logger = Logger.GetLogger(typeof(BoundingObjectDebug));
+
         private static readonly Dictionary<DebugColor, string> _debugColorTexture = new Dictionary<DebugColor, string>()
         {
             { DebugColor.Red, "Debug/red.png" },

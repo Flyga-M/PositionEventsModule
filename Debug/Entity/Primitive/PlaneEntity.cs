@@ -1,5 +1,6 @@
 ﻿using Blish_HUD;
 using Blish_HUD.Entities;
+using Blish_HUD.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -54,7 +55,12 @@ namespace Flyga.PositionEventsModule.Debug.Entity.Primitive
 
         private void UpdateVertexBuffer()
         {
-            var vertexBuffer = new VertexBuffer(GameService.Graphics.LendGraphicsDeviceContext().GraphicsDevice, VertexPositionColorTexture.VertexDeclaration, _vertices.Length, BufferUsage.WriteOnly);
+            GraphicsDeviceContext ctx = GameService.Graphics.LendGraphicsDeviceContext();
+
+            VertexBuffer vertexBuffer = new VertexBuffer(ctx.GraphicsDevice, typeof(VertexPositionColorTexture), _vertices.Length, BufferUsage.WriteOnly);
+
+            ctx.Dispose();
+            
             vertexBuffer.SetData(_vertices);
 
             _vertexBuffer = vertexBuffer;
@@ -63,10 +69,15 @@ namespace Flyga.PositionEventsModule.Debug.Entity.Primitive
         private void Initialize()
         {
             BuildPlane();
-            _sharedEffect = new BasicEffect(GameService.Graphics.LendGraphicsDeviceContext().GraphicsDevice)
+
+            GraphicsDeviceContext ctx = GameService.Graphics.LendGraphicsDeviceContext();
+
+            _sharedEffect = new BasicEffect(ctx.GraphicsDevice)
             {
                 TextureEnabled = true
             };
+
+            ctx.Dispose();
         }
 
         public void Update(GameTime gameTime)
