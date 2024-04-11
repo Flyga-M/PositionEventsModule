@@ -69,7 +69,7 @@ You need a different geometrical shape for your area? Implement the
 ```
 dependencies":{
     "bh.blishhud": "^1.0.0",
-    "Flyga.PositionEvents": "^0.2.0"
+    "Flyga.PositionEvents": "^0.3.0"
 }
 ```
 > [!TIP]
@@ -78,16 +78,19 @@ dependencies":{
 > already be present, because of your modules dependence on the Position Events Module.
 
 ### Usage inside your module
-1. Retrieve a reference to the Position Events Module instance during your `LoadAsync` method.
+1. Retrieve a reference to the Position Events Context.
+```
+_positionEventsContext = GameService.Contexts.GetContext<PositionEventsContext>();
+```
 > [!WARNING]
 > Make sure to avoid module load order conflicts. For reference see the [Position Events Example](https://github.com/Flyga-M/PositionEventsExample).
 
 2. Register your desired areas with the Position Events Module.
 ```
-// Assumes you retrieved a reference to the Position Events Module before
+// Assumes you retrieved a reference to the Position Events Context before
 // calling this
 IBoundingObject area = new BoundingObjectBox(new Vector3(0), new Vector3(10, 20, 30));
-_positionEventsModule?.RegisterArea(this, 15, area, OnAreaJoinedOrLeft);
+_positionEventsContext.RegisterArea(this, 15, area, OnAreaJoinedOrLeft);
 ```
 
 3. Use the output with a callback action
@@ -114,7 +117,7 @@ As a rudimentary way to debug your areas, this module provides the option to dis
 
  To make use of this feature, simply set the `debug` parameter to `true`, when registering the area.
  ```
- _positionEventsModule?.RegisterArea(this, 15, area, OnAreaJoinedOrLeft, debug: true);
+ _positionEventsContext.RegisterArea(this, 15, area, OnAreaJoinedOrLeft, debug: true);
  ```
  > [!WARNING]
  > You should never ship your module with the debug functionality enabled.
