@@ -12,18 +12,43 @@ using System;
 
 namespace Flyga.PositionEventsModule.Debug
 {
-    public static class BoundingObjectDebug
+    public class BoundingObjectDebug : IDisposable
     {
-        private static Logger Logger = Logger.GetLogger(typeof(BoundingObjectDebug));
+        private static Logger Logger = Logger.GetLogger<BoundingObjectDebug>();
 
-        private static readonly Dictionary<DebugColor, string> _debugColorTexture = new Dictionary<DebugColor, string>()
+        private PositionEventsModule _module;
+
+        private static readonly Dictionary<DebugColor, string> _debugColorTexturePath = new Dictionary<DebugColor, string>()
         {
             { DebugColor.Red, "Debug/red.png" },
             { DebugColor.Green, "Debug/green.png" },
             { DebugColor.Blue, "Debug/blue.png" }
         };
-        
-        private static readonly Dictionary<IBoundingObject, IEntity> _entities = new Dictionary<IBoundingObject, IEntity>();
+
+        private readonly Dictionary<DebugColor, Texture2D> _debugColorTexture;
+
+
+        private readonly Dictionary<IBoundingObject, IEntity> _entities;
+
+        public BoundingObjectDebug(PositionEventsModule module)
+        {
+            _module = module;
+
+            _debugColorTexture = new Dictionary<DebugColor, Texture2D>();
+            _entities = new Dictionary<IBoundingObject, IEntity>();
+        }
+
+        private Texture2D GetDebugTexture(DebugColor color)
+        {
+            string path = _debugColorTexturePath[color];
+
+            if (!_debugColorTexture.ContainsKey(color))
+            {
+                _debugColorTexture[color] = _module.ContentsManager.GetTexture(path);
+            }
+
+            return _debugColorTexture[color];
+        }
 
         /// <summary>
         /// Adds the <paramref name="boundingObject"/> as an <see cref="IEntity"/> to the world.
@@ -32,9 +57,9 @@ namespace Flyga.PositionEventsModule.Debug
         /// <see cref="IEntity"/>.</param>
         /// <param name="color">The <see cref="DebugColor"/> with which the <paramref name="boundingObject"/> 
         /// should be rendered.</param>
-        public static void DisplayBoundingObject(IBoundingObject boundingObject, DebugColor color = DebugColor.Blue)
+        public void DisplayBoundingObject(IBoundingObject boundingObject, DebugColor color = DebugColor.Blue)
         {
-            IEntity entity = GetEntity(boundingObject, color, 0.2f);
+            IEntity entity = GetEntity(boundingObject, GetDebugTexture(color), 0.2f);
 
             _entities[boundingObject] = entity;
 
@@ -46,7 +71,7 @@ namespace Flyga.PositionEventsModule.Debug
         /// </summary>
         /// <param name="boundingObject">The <see cref="IBoundingObject"/> whose <see cref="IEntity"/> 
         /// should be removed.</param>
-        public static void RemoveBoundingObject(IBoundingObject boundingObject)
+        public void RemoveBoundingObject(IBoundingObject boundingObject)
         {
             if (!_entities.ContainsKey(boundingObject))
             {
@@ -58,7 +83,7 @@ namespace Flyga.PositionEventsModule.Debug
             _entities.Remove(boundingObject);
         }
 
-        internal static void RemoveAllBoundingObjects()
+        internal void RemoveAllBoundingObjects()
         {
             foreach (IBoundingObject boundingObject in _entities.Keys.ToArray())
             {
@@ -75,7 +100,7 @@ namespace Flyga.PositionEventsModule.Debug
         /// should be changed.</param>
         /// <param name="color">The <see cref="DebugColor"/> with which the <paramref name="boundingObject"/> 
         /// should now be rendered.</param>
-        public static void ChangeBoundingObject(IBoundingObject boundingObject, DebugColor color)
+        public void ChangeBoundingObject(IBoundingObject boundingObject, DebugColor color)
         {
             if (!_entities.ContainsKey(boundingObject))
             {
@@ -85,27 +110,29 @@ namespace Flyga.PositionEventsModule.Debug
 
             IEntity entity = _entities[boundingObject];
 
+            Texture2D texture = GetDebugTexture(color);
+
             if (entity is CuboidEntity cuboidEntity)
             {
-                cuboidEntity.Texture = PositionEventsModule.Instance.ContentsManager.GetTexture(_debugColorTexture[color]);
+                cuboidEntity.Texture = texture;
                 return;
             }
 
             if (entity is SphereEntity sphereEntity)
             {
-                sphereEntity.Texture = PositionEventsModule.Instance.ContentsManager.GetTexture(_debugColorTexture[color]);
+                sphereEntity.Texture = texture;
                 return;
             }
 
             if (entity is PrismEntity prismEntity)
             {
-                prismEntity.Texture = PositionEventsModule.Instance.ContentsManager.GetTexture(_debugColorTexture[color]);
+                prismEntity.Texture = texture;
                 return;
             }
 
             if (entity is VoxelEntity voxelEntity)
             {
-                voxelEntity.VoxelTexture = PositionEventsModule.Instance.ContentsManager.GetTexture(_debugColorTexture[color]);
+                voxelEntity.VoxelTexture = texture;
                 return;
             }
 
@@ -118,14 +145,12 @@ namespace Flyga.PositionEventsModule.Debug
         /// </summary>
         /// <param name="boundingBox">The <see cref="BoundingBox"/> that should be represented as a 
         /// <see cref="CuboidEntity"/>.</param>
-        /// <param name="color">The <see cref="DebugColor"/>, with which the <paramref name="boundingBox"/> should 
+        /// <param name="texture">The <see cref="Texture2D"/>, with which the <paramref name="boundingBox"/> should 
         /// be rendered.</param>
         /// <param name="opacity">The opacity of the resulting <see cref="CuboidEntity"/>.</param>
         /// <returns>The <see cref="CuboidEntity"/>, that represents the <paramref name="boundingBox"/>.</returns>
-        public static CuboidEntity CuboidEntityFromBoundingBox(BoundingBox boundingBox, DebugColor color, float opacity)
+        public static CuboidEntity CuboidEntityFromBoundingBox(BoundingBox boundingBox, Texture2D texture, float opacity)
         {
-            Texture2D texture = PositionEventsModule.Instance.ContentsManager.GetTexture(_debugColorTexture[color]);
-
             return new CuboidEntity(texture, opacity, boundingBox.GetCenter(), Vector3.UnitZ, boundingBox.Max - boundingBox.Min);
         }
 
@@ -134,16 +159,14 @@ namespace Flyga.PositionEventsModule.Debug
         /// </summary>
         /// <param name="boundingSphere">The <see cref="BoundingSphere"/> that should be represented as a 
         /// <see cref="SphereEntity"/>.</param>
-        /// <param name="color">The <see cref="DebugColor"/>, with which the <paramref name="boundingSphere"/> should 
+        /// <param name="texture">The <see cref="Texture2D"/>, with which the <paramref name="boundingSphere"/> should 
         /// be rendered.</param>
         /// <param name="opacity">The opacity of the resulting <see cref="SphereEntity"/>.</param>
         /// <param name="detail">The amount of vertical segments for the sphere. If null, will be set to a 
         /// standard scaling value.</param>
         /// <returns>The <see cref="SphereEntity"/>, that represents the <paramref name="boundingSphere"/>.</returns>
-        public static SphereEntity SphereEntityFromBoundingSphere(BoundingSphere boundingSphere, DebugColor color, float opacity, int? detail = null)
+        public static SphereEntity SphereEntityFromBoundingSphere(BoundingSphere boundingSphere, Texture2D texture, float opacity, int? detail = null)
         {
-            Texture2D texture = PositionEventsModule.Instance.ContentsManager.GetTexture(_debugColorTexture[color]);
-
             if (!detail.HasValue)
             {
                 detail = 8;
@@ -161,14 +184,12 @@ namespace Flyga.PositionEventsModule.Debug
         /// </summary>
         /// <param name="prism">The <see cref="BoundingObjectPrism"/> that should be represented as a 
         /// <see cref="PrismEntity"/>.</param>
-        /// <param name="color">The <see cref="DebugColor"/>, with which the <paramref name="prism"/> should 
+        /// <param name="texture">The <see cref="Texture2D"/>, with which the <paramref name="prism"/> should 
         /// be rendered.</param>
         /// <param name="opacity">The opacity of the resulting <see cref="PrismEntity"/>.</param>
         /// <returns>The <see cref="PrismEntity"/>, that represents the <paramref name="prism"/>.</returns>
-        public static PrismEntity PrismEntityFromBoundingObjectPrism(BoundingObjectPrism prism, DebugColor color, float opacity)
+        public static PrismEntity PrismEntityFromBoundingObjectPrism(BoundingObjectPrism prism, Texture2D texture, float opacity)
         {
-            Texture2D texture = PositionEventsModule.Instance.ContentsManager.GetTexture(_debugColorTexture[color]);
-
             float length = prism.Top - prism.Bottom;
 
             Vector2 centerXY = PolygonUtil.GetCenter(prism.Polygon);
@@ -207,15 +228,13 @@ namespace Flyga.PositionEventsModule.Debug
         /// </summary>
         /// <param name="boundingObject">The <see cref="IBoundingObject"/> that should be represented as a 
         /// <see cref="VoxelEntity"/>.</param>
-        /// <param name="color">The <see cref="DebugColor"/>, with which the <paramref name="boundingObject"/> should 
+        /// <param name="texture">The <see cref="Texture2D"/>, with which the <paramref name="boundingObject"/> should 
         /// be rendered.</param>
         /// <param name="opacity">The opacity of the resulting <see cref="VoxelEntity"/>.</param>
         /// <param name="detail">The base length of the voxel cubes, that make up the <see cref="VoxelEntity"/>.</param>
         /// <returns>The <see cref="VoxelEntity"/>, that represents the <paramref name="boundingObject"/>.</returns>
-        public static VoxelEntity VoxelEntityFromBoundingObject(IBoundingObject boundingObject, DebugColor color, float opacity, float detail = 2.0f)
+        public static VoxelEntity VoxelEntityFromBoundingObject(IBoundingObject boundingObject, Texture2D texture, float opacity, float detail = 2.0f)
         {
-            Texture2D texture = PositionEventsModule.Instance.ContentsManager.GetTexture(_debugColorTexture[color]);
-
             return new VoxelEntity(texture, opacity, Vector3.Zero, boundingObject.Contains, detail, boundingObject.Bounds);
         }
 
@@ -227,28 +246,42 @@ namespace Flyga.PositionEventsModule.Debug
         /// </summary>
         /// <param name="boundingObject">The <see cref="IBoundingObject"/> that should be represented 
         /// as an <see cref="IEntity"/>.</param>
-        /// <param name="color">The <see cref="DebugColor"/>, with which the <paramref name="boundingObject"/> should 
+        /// <param name="texture">The <see cref="Texture2D"/>, with which the <paramref name="boundingObject"/> should 
         /// be rendered.</param>
         /// <param name="opacity">The opacity of the resulting <see cref="IEntity"/>.</param>
         /// <returns>The <see cref="IEntity"/> that represents the <paramref name="boundingObject"/>.</returns>
-        public static IEntity GetEntity(IBoundingObject boundingObject, DebugColor color, float opacity)
+        public static IEntity GetEntity(IBoundingObject boundingObject, Texture2D texture, float opacity)
         {
             if (boundingObject is BoundingObjectSphere sphere)
             {
-                return SphereEntityFromBoundingSphere(sphere.Sphere, color, opacity);
+                return SphereEntityFromBoundingSphere(sphere.Sphere, texture, opacity);
             }
 
             if (boundingObject is BoundingObjectPrism prism)
             {
-                return PrismEntityFromBoundingObjectPrism(prism, color, opacity);
+                return PrismEntityFromBoundingObjectPrism(prism, texture, opacity);
             }
 
             if (boundingObject is BoundingObjectBox box)
             {
-                return CuboidEntityFromBoundingBox(box.Bounds, color, opacity);
+                return CuboidEntityFromBoundingBox(box.Bounds, texture, opacity);
             }
 
-            return VoxelEntityFromBoundingObject(boundingObject, color, opacity);
+            return VoxelEntityFromBoundingObject(boundingObject, texture, opacity);
+        }
+
+        public void Dispose()
+        {
+            RemoveAllBoundingObjects();
+
+            foreach (Texture2D texture in _debugColorTexture.Values)
+            {
+                texture.Dispose();
+            }
+
+            _debugColorTexture.Clear();
+
+            _module = null;
         }
     }
 }

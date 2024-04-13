@@ -3,6 +3,7 @@ using Blish_HUD.Modules;
 using Blish_HUD.Modules.Managers;
 using Blish_HUD.Settings;
 using Flyga.PositionEventsModule.Contexts;
+using Flyga.PositionEventsModule.Debug;
 using Microsoft.Xna.Framework;
 using PositionEvents;
 using PositionEvents.Area;
@@ -20,6 +21,7 @@ namespace Flyga.PositionEventsModule
 
         internal static PositionEventsModule Instance { get; set; }
 
+        private readonly BoundingObjectDebug _debugDisplay;
         private readonly Dictionary<int, List<IBoundingObject>> _debugAreas;
 
         private readonly Dictionary<Type, Dictionary<int, List<IBoundingObject>>> _areasByModule;
@@ -105,6 +107,8 @@ namespace Flyga.PositionEventsModule
         {
             Instance = this;
 
+            _debugDisplay = new BoundingObjectDebug(this);
+
             _debugAreas = new Dictionary<int, List<IBoundingObject>>();
             _registeredModules = new List<Module>();
             _areasByModule = new Dictionary<Type, Dictionary<int, List<IBoundingObject>>>();
@@ -167,7 +171,7 @@ namespace Flyga.PositionEventsModule
         {
             MapChanged?.Invoke(this, GameService.Gw2Mumble.GetPositionData(mapId.Value));
 
-            Debug.BoundingObjectDebug.RemoveAllBoundingObjects();
+            _debugDisplay.RemoveAllBoundingObjects();
 
             LoadCurrentDebugEntities(mapId.Value);
         }
@@ -181,7 +185,7 @@ namespace Flyga.PositionEventsModule
 
             foreach (IBoundingObject area in _debugAreas[mapId])
             {
-                Debug.BoundingObjectDebug.DisplayBoundingObject(area);
+                _debugDisplay.DisplayBoundingObject(area);
             }
         }
 
@@ -194,11 +198,11 @@ namespace Flyga.PositionEventsModule
         {
             if (joined)
             {
-                Debug.BoundingObjectDebug.ChangeBoundingObject(area, Debug.DebugColor.Green);
+                _debugDisplay.ChangeBoundingObject(area, Debug.DebugColor.Green);
                 return;
             }
 
-            Debug.BoundingObjectDebug.ChangeBoundingObject(area, Debug.DebugColor.Red);
+            _debugDisplay.ChangeBoundingObject(area, Debug.DebugColor.Red);
         }
 
         private void OnOtherModuleRunStateChanged(object sender, ModuleRunStateChangedEventArgs runStateChangedEventArgs)
@@ -316,7 +320,7 @@ namespace Flyga.PositionEventsModule
 
             if (mapId == GameService.Gw2Mumble.CurrentMap.Id)
             {
-                Debug.BoundingObjectDebug.DisplayBoundingObject(area);
+                _debugDisplay.DisplayBoundingObject(area);
             }
         }
 
@@ -325,7 +329,7 @@ namespace Flyga.PositionEventsModule
             if (_debugAreas.ContainsKey(mapId) && _debugAreas[mapId].Contains(area))
             {
                 _debugAreas[mapId].Remove(area);
-                Debug.BoundingObjectDebug.RemoveBoundingObject(area);
+                _debugDisplay.RemoveBoundingObject(area);
             }
 
             if (_areasByModule.ContainsKey(moduleType)
@@ -439,7 +443,7 @@ namespace Flyga.PositionEventsModule
             _updateCooldown.SettingChanged -= OnUpdateCooldownSettingChanged;
             _updateCooldownOverrideAllowed.SettingChanged -= OnUpdateCooldownOverrideAllowedSettingChanged;
 
-            Debug.BoundingObjectDebug.RemoveAllBoundingObjects();
+            _debugDisplay.Dispose();
         }
 
     }
