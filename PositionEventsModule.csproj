@@ -153,6 +153,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contexts\OverrideCooldown.cs" />
     <Compile Include="Contexts\PositionEventsContext.cs" />
     <Compile Include="Contexts\RegisterArea.cs" />
     <Compile Include="Contexts\RemoveAllAreas.cs" />

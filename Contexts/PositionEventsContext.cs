@@ -21,6 +21,7 @@ namespace Flyga.PositionEventsModule.Contexts
         internal event AsyncEventHandler<RegisterArea> RequestRegisterArea;
         internal event AsyncReturnEventHandler<RemoveArea, bool> RequestRemoveArea;
         internal event AsyncEventHandler<RemoveAllAreas> RequestRemoveAllAreas;
+        internal event AsyncReturnEventHandler<OverrideCooldown, int> RequestOverrideCooldown;
 
         protected override void Load()
         {
@@ -87,6 +88,23 @@ namespace Flyga.PositionEventsModule.Contexts
             CheckReady();
 
             await (RequestRemoveAllAreas?.Invoke(this, new RemoveAllAreas(module)) ?? Task.FromException(new NotImplementedException()));
+        }
+
+        /// <summary>
+        /// Registers the cooldown (refresh rate) override <paramref name="value"/> for 
+        /// the given <paramref name="module"/>.
+        /// </summary>
+        /// <param name="module"></param>
+        /// <param name="value"></param>
+        /// <returns>The current <see cref="PositionEventsModule.ActualCooldown"/> 
+        /// value.</returns>
+        public async Task<int> OverrideCooldown(Module module, int value)
+        {
+            CheckReady();
+
+            if (RequestOverrideCooldown is null) throw new NotImplementedException();
+
+            return await RequestOverrideCooldown.Invoke(this, new OverrideCooldown(module, value));
         }
 
     }

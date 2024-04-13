@@ -29,6 +29,11 @@ namespace Flyga.PositionEventsModule
         private IPositionHandler _positionHandler;
 
         private static SettingEntry<int> _updateCooldown;
+        private static SettingEntry<bool> _updateCooldownOverrideAllowed;
+
+        private static int _actualCooldown = 0;
+
+        private Dictionary<Type, int> _cooldownOverridesByModule;
 
         private double _lastUpdate = 0;
 
@@ -36,10 +41,19 @@ namespace Flyga.PositionEventsModule
         private ContextsService.ContextHandle<PositionEventsContext> _positionEventsContextHandle;
         private ContextManager _contextManager;
 
+        /// <summary>
+        /// The value of the UpdateCooldown (refresh rate) setting of this 
+        /// <see cref="PositionEventsModule"/>. Clamped between 0 and 5000 ms. 
+        /// Will return 0, if the setting is null.
+        /// </summary>
         public static int ClampedCooldown
         {
             get
             {
+                if (_updateCooldown.IsNull)
+                {
+                    return 0;
+                }
                 if (_updateCooldown.Value <= 0)
                 {
                     return 0;
@@ -50,6 +64,32 @@ namespace Flyga.PositionEventsModule
                 }
 
                 return _updateCooldown.Value;
+            }
+        }
+
+        /// <summary>
+        /// The actual update cooldown (refresh rate) determined by the UpdateCooldown 
+        /// setting, the UpdateCooldownOverrideAllowed setting of this 
+        /// <see cref="PositionEventsModule"/> and the registered 
+        /// cooldown overrides by the dependent <see cref="Module">Modules</see>.
+        /// </summary>
+        public static int ActualCooldown
+        {
+            get
+            {
+                return _actualCooldown;
+            }
+        }
+
+        public static bool UpdateCooldownOverrideAllowed
+        {
+            get
+            {
+                if (_updateCooldownOverrideAllowed.IsNull)
+                {
+                    return true;
+                }
+                return _updateCooldownOverrideAllowed.Value;
             }
         }
 
@@ -68,18 +108,57 @@ namespace Flyga.PositionEventsModule
             _debugAreas = new Dictionary<int, List<IBoundingObject>>();
             _registeredModules = new List<Module>();
             _areasByModule = new Dictionary<Type, Dictionary<int, List<IBoundingObject>>>();
+            _cooldownOverridesByModule = new Dictionary<Type, int>();
         }
 
         protected override void DefineSettings(SettingCollection settings)
         {
             _updateCooldown = settings.DefineSetting("UpdateCooldown", 30, () => "Update Cooldown (ms)", () => "The cooldown between checking the player position in miliseconds (1000ms = 1s). Clamped between 0s - 5s.");
             _updateCooldown.SetRange(0, 5000);
+
+            _updateCooldownOverrideAllowed = settings.DefineSetting("UpdateCooldownOverrideAllowed", true, () => "Allow modules to ignore cooldown", () => "Allows individual modules to update the position data more often than you specified in the \"Update Cooldown\" setting.");
         }
 
         protected override void Initialize()
         {
             GameService.Gw2Mumble.CurrentMap.MapChanged += OnMapChange;
             _positionHandler = new PositionHandler(MapChanged);
+
+            _updateCooldown.SettingChanged += OnUpdateCooldownSettingChanged;
+            _updateCooldownOverrideAllowed.SettingChanged += OnUpdateCooldownOverrideAllowedSettingChanged;
+
+            UpdateActualCooldown();
+        }
+
+        private void OnUpdateCooldownSettingChanged(object _, ValueChangedEventArgs<int> _1)
+        {
+            UpdateActualCooldown();
+        }
+
+        private void OnUpdateCooldownOverrideAllowedSettingChanged(object _, ValueChangedEventArgs<bool> _1)
+        {
+            UpdateActualCooldown();
+        }
+
+        private void UpdateActualCooldown()
+        {
+            int min = ClampedCooldown;
+
+            if (!_updateCooldownOverrideAllowed.IsNull && !_updateCooldownOverrideAllowed.Value)
+            {
+                _actualCooldown = min;
+                return;
+            }
+
+            foreach (int overrideCooldown in _cooldownOverridesByModule.Values)
+            {
+                if (overrideCooldown < min)
+                {
+                    min = overrideCooldown;
+                }
+            }
+
+            _actualCooldown = min;
         }
 
         private event EventHandler<PositionData> MapChanged;
@@ -168,7 +247,7 @@ namespace Flyga.PositionEventsModule
 
         protected override void Update(GameTime gameTime)
         {
-            if (_lastUpdate < ClampedCooldown)
+            if (_lastUpdate < ActualCooldown)
             {
                 _lastUpdate += gameTime.ElapsedGameTime.TotalMilliseconds;
                 return;
@@ -301,6 +380,29 @@ namespace Flyga.PositionEventsModule
             }
         }
 
+        /// <summary>
+        /// Registers the cooldown (refresh rate) override <paramref name="value"/> for 
+        /// the given <paramref name="module"/>.
+        /// </summary>
+        /// <param name="module"></param>
+        /// <param name="value"></param>
+        /// <returns>The current <see cref="PositionEventsModule.ActualCooldown"/> 
+        /// value.</returns>
+        /// <exception cref="ArgumentException">If the set value is less than 0.</exception>
+        internal int OverrideCooldown(Module module, int value)
+        {
+            if (value < 0)
+            {
+                throw new ArgumentException("value can't be less than 0.", nameof(value));
+            }
+
+            _cooldownOverridesByModule[module.GetType()] = value;
+
+            UpdateActualCooldown();
+
+            return ActualCooldown;
+        }
+
         private void UnloadContext()
         {
             _positionEventsContextHandle?.Expire();
@@ -329,9 +431,13 @@ namespace Flyga.PositionEventsModule
 
             _registeredModules.Clear();
             _areasByModule.Clear();
+            _cooldownOverridesByModule.Clear();
 
             _positionHandler.Clear();
             _positionHandler.Dispose();
+
+            _updateCooldown.SettingChanged -= OnUpdateCooldownSettingChanged;
+            _updateCooldownOverrideAllowed.SettingChanged -= OnUpdateCooldownOverrideAllowedSettingChanged;
 
             Debug.BoundingObjectDebug.RemoveAllBoundingObjects();
         }

@@ -34,6 +34,7 @@ namespace Flyga.PositionEventsModule.Contexts
             _context.RequestRegisterArea += RequestAddArea;
             _context.RequestRemoveArea += RequestRemoveArea;
             _context.RequestRemoveAllAreas += RequestRemoveAllAreas;
+            _context.RequestOverrideCooldown += RequestOverrideCooldown;
         }
 
         private Task RequestAddArea(object _, RegisterArea arguments)
@@ -57,6 +58,13 @@ namespace Flyga.PositionEventsModule.Contexts
             return Task.CompletedTask;
         }
 
+        private Task<int> RequestOverrideCooldown(object _, OverrideCooldown arguments)
+        {
+            int actualCooldown = _module.OverrideCooldown(arguments.Caller, arguments.Value);
+
+            return Task.FromResult(actualCooldown);
+        }
+
         public void Update(GameTime gameTime)
         {
             /** NOOP **/
@@ -69,6 +77,7 @@ namespace Flyga.PositionEventsModule.Contexts
                 _context.RequestRegisterArea -= RequestAddArea;
                 _context.RequestRemoveArea -= RequestRemoveArea;
                 _context.RequestRemoveAllAreas -= RequestRemoveAllAreas;
+                _context.RequestOverrideCooldown -= RequestOverrideCooldown;
             }
 
             _context = null;
