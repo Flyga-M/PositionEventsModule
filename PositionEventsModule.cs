@@ -188,7 +188,7 @@ namespace Flyga.PositionEventsModule
                 _debugDisplay.DisplayBoundingObject(area);
             }
         }
-
+        
         protected override Task LoadAsync()
         {
             return Task.CompletedTask;
