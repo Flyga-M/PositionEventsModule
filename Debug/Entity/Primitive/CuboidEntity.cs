@@ -3,7 +3,6 @@ using Blish_HUD.Entities;
 using Blish_HUD.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Flyga.PositionEventsModule.Debug.Entity.Primitive
 {

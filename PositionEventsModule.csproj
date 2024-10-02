@@ -48,8 +48,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>bin\x64\Release\PositionEventsModule.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -145,9 +144,6 @@
     <None Include="manifest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="mgfxc.deps.json" />
-    <None Include="mgfxc.runtimeconfig.dev.json" />
-    <None Include="mgfxc.runtimeconfig.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -182,6 +178,7 @@
     </Reference>
     <Reference Include="Gw2Sharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Gw2Sharp.1.7.4\lib\netstandard2.0\Gw2Sharp.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.5.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
@@ -208,8 +205,8 @@
       <HintPath>packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="PositionEvents, Version=1.1.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\PositionEvents.1.1.4\lib\net48\PositionEvents.dll</HintPath>
+    <Reference Include="PositionEvents, Version=1.1.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\PositionEvents.1.1.9\lib\net48\PositionEvents.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>packages\SharpDX.4.0.1\lib\net45\SharpDX.dll</HintPath>
@@ -345,16 +342,7 @@
     <None Include="ref\_instructions.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CppNet.dll" />
-    <Content Include="libmojoshader_64.dll" />
     <Content Include="LICENSE.txt" />
-    <Content Include="mgfxc.dll" />
-    <Content Include="mgfxc.exe" />
-    <Content Include="mgfxc.pdb" />
-    <Content Include="SharpDX.D3DCompiler.dll" />
-    <Content Include="SharpDX.D3DCompiler.xml" />
-    <Content Include="SharpDX.dll" />
-    <Content Include="SharpDX.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ref\Debug\" />

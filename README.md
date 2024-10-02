@@ -69,7 +69,7 @@ You need a different geometrical shape for your area? Implement the
 ```
 dependencies":{
     "bh.blishhud": "^1.0.0",
-    "Flyga.PositionEvents": "^0.4.0"
+    "Flyga.PositionEvents": "^1.0.0"
 }
 ```
 > [!TIP]
